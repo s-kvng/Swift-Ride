@@ -45,6 +45,8 @@ const InputField = ({
               placeholder={placeholder}
               placeholderTextColor={"gray"}
               secureTextEntry={secureTextEntry}
+              value={value}
+              onChangeText={onChangeText}
             />
           </View>
         </View>

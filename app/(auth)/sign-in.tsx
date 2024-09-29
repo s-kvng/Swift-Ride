@@ -1,7 +1,15 @@
-import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link, router } from "expo-router";
-import { useState } from "react";
+import { Link, useRouter } from "expo-router";
+import { useState, useCallback } from "react";
+import { useSignIn } from "@clerk/clerk-expo";
 
 import { images, icons } from "@/constants";
 import InputField from "@/components/inputField";
@@ -9,15 +17,37 @@ import CustomButton from "@/components/CustomButton";
 import OAuth from "@/components/OAuth";
 
 const SignIn = () => {
+  const { signIn, setActive, isLoaded } = useSignIn();
+  const router = useRouter();
   const [form, setForm] = useState({
-    name: "",
     email: "",
     password: "",
   });
 
-  const onSignInPress = async () => {
-    console.log("onSignInPress", form);
-  };
+  const onSignInPress = useCallback(async () => {
+    if (!isLoaded) {
+      return;
+    }
+
+    try {
+      const signInAttempt = await signIn.create({
+        identifier: form.email,
+        password: form.password,
+      });
+
+      if (signInAttempt.status === "complete") {
+        await setActive({ session: signInAttempt.createdSessionId });
+        router.replace("/(root)/(tabs)/home");
+      } else {
+        // See https://clerk.com/docs/custom-flows/error-handling
+        // for more info on error handling
+        console.error(JSON.stringify(signInAttempt, null, 2));
+        Alert.alert("Error", "Error signing in");
+      }
+    } catch (err: any) {
+      Alert.alert("Error", err.errors[0].longMessage);
+    }
+  }, [isLoaded, form.email, form.password]);
 
   return (
     <ScrollView className="flex-1">
@@ -50,8 +80,8 @@ const SignIn = () => {
           />
 
           <CustomButton
-            title="Sign Up"
-            onPress={() => onSignInPress}
+            title="Sign In"
+            onPress={onSignInPress}
             className=" mt-6"
           />
 

@@ -18,3 +18,10 @@ web-build/
 
 expo-env.d.ts
 # @end expo-cli
+
+.env.example
+.env.example
+*.env
+.env.example
+.env.example
+.env.example

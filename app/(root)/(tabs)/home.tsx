@@ -1,9 +1,18 @@
 import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
 import { Link } from "expo-router";
-import { Text, View, FlatList, Image, ActivityIndicator } from "react-native";
+import {
+  Text,
+  View,
+  FlatList,
+  Image,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import RideCard from "@/components/RideCard";
-import { images } from "@/constants";
+import { icons, images } from "@/constants";
+import GoogleTextInput from "@/components/GoogleTextInput";
+import Map from "@/components/Map";
 
 const recentRides = [
   {
@@ -114,7 +123,11 @@ const recentRides = [
 
 export default function Page() {
   const { user } = useUser();
+  console.log(user);
   const loading = true;
+
+  const handleSignOut = () => {};
+  const handleDestinationPress = () => {};
 
   return (
     <SafeAreaView>
@@ -146,8 +159,42 @@ export default function Page() {
         ListHeaderComponent={() => (
           <>
             <View className="flex flex-row items-center justify-between my-5">
-              <Text>Welcome {user?.firstName} </Text>
+              <Text className="text-2xl font-JakartaBold">
+                Welcome{" "}
+                {user?.firstName ||
+                  user?.emailAddresses[0].emailAddress.split("@")[0]}{" "}
+              </Text>
+              <TouchableOpacity
+                onPress={handleSignOut}
+                className="justify-center items-center w-10 h-10 rounded-full bg-white"
+              >
+                <Image
+                  source={icons.out}
+                  className="w-4 h-4"
+                  alt={"Logout icon"}
+                />
+              </TouchableOpacity>
             </View>
+
+            <GoogleTextInput
+              icon={icons.search}
+              containerStyle="bg-white shadow-neutral-300 "
+              handlePress={handleDestinationPress}
+            />
+
+            <>
+              <Text className=" text-xl font-JakartaBold mt-5 mb-3">
+                Your current Location
+              </Text>
+
+              <View className=" flex flex-row items-center bg-transparent h-[300px]">
+                <Map />
+              </View>
+            </>
+
+            <Text className=" text-xl font-JakartaBold mt-5 mb-3">
+              Recent Rides
+            </Text>
           </>
         )}
       />
